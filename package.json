@@ -1,0 +1,47 @@
+{
+  "name": "lebot-challenge-ddns",
+  "version": "0.1.0",
+  "description": "lebot-challenge-ddns",
+  "license": "MIT",
+  "repository": "",
+  "author": "",
+  "keywords": [
+    ""
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "format": "prettier --write \"{src,test}/**/*.ts\" --single-quote --trailing-comma es5",
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && echo Using TypeScript && tsc --version",
+    "build": "tsc --pretty",
+    "test": "npm run build && nyc mocha --require ts-node/register --recursive \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "async-retry": "^1.2.3",
+    "bluebird": "^3.5.3",
+    "kvs": "^1.0.2",
+    "namex": "^0.2.4"
+  },
+  "devDependencies": {
+    "@types/async-retry": "^1.2.1",
+    "@types/bluebird": "^3.5.25",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^11.9.3",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.2.0",
+    "prettier": "^1.16.4",
+    "rimraf": "^2.6.3",
+    "ts-node": "latest",
+    "typescript": "latest"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}
