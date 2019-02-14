@@ -94,7 +94,7 @@ export class DDNSChallenger {
         ...creds,
         type: "TXT",
         name: challengeDomain,
-        ttl: opts.ttl || 60,
+        ttl: opts.ttl || 120,
         content: keyAuthDigest
       });
 
