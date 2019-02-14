@@ -13,6 +13,7 @@ type CallbackFn = (err: any, data?: any) => void;
 
 interface ChallengerOptions {
   acmeChallengeDns?: string;
+  ttl?: number;
   user?: string;
   pass?: string;
   token?: string;
@@ -93,7 +94,7 @@ export class DDNSChallenger {
         ...creds,
         type: "TXT",
         name: challengeDomain,
-        ttl: opts.ttl || 300,
+        ttl: opts.ttl || 60,
         content: keyAuthDigest
       });
 
