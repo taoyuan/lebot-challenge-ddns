@@ -103,7 +103,7 @@ export class DDNSChallenger {
         console.log("dig TXT +noall +answer @ns1.redirect-www.org '" + challengeDomain + "' # " + challenge);
       }
 
-      await retry(() => this.loopback(opts, domain), { maxTimeout: 5000 });
+      await retry(async () => assert(keyAuthDigest == await this.loopback(opts, domain)), { maxTimeout: 5000 });
 
       done && done(null, keyAuthDigest);
       return keyAuthDigest;

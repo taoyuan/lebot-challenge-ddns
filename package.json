@@ -33,10 +33,12 @@
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "@types/node": "^11.9.3",
+    "@types/randomstring": "^1.1.6",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "nyc": "^13.2.0",
     "prettier": "^1.16.4",
+    "randomstring": "^1.1.5",
     "rimraf": "^2.6.3",
     "ts-node": "latest",
     "typescript": "latest"

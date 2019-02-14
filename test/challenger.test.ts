@@ -1,5 +1,6 @@
 import { DDNSChallenger } from "../src";
 import { assert } from "chai";
+import randomstring = require('randomstring');
 
 // cloudflare credentials should be set before test
 assert(process.env.DNS_CLOUDFLARE_USER, 'DNS_CLOUDFLARE_USER is required in env');
@@ -11,7 +12,7 @@ const creds = {
 
 const domain = "test.uugo.xyz";
 const challenge = "xxx-acme-challenge-xxx";
-const keyAuthorization = "xxx-acme-challenge-xxx.xxx-acme-authorization-xxx";
+const keyAuthorization = randomstring.generate();
 
 describe("DDNSChallenger", function() {
   this.timeout(30000);
