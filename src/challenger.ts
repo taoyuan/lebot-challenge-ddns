@@ -6,13 +6,13 @@ import dns = require("dns");
 import retry = require("async-retry");
 
 const DEFAULT_OPTIONS = {
-  acmeChallengePrefix: "_acme-challenge"
+  acmeChallengeDns: "_acme-challenge"
 };
 
 type CallbackFn = (err: any, data?: any) => void;
 
 interface ChallengerOptions {
-  acmeChallengePrefix?: string;
+  acmeChallengeDns?: string;
   user?: string;
   pass?: string;
   token?: string;
@@ -26,7 +26,7 @@ export interface DDNSChallengerOptions extends ChallengerOptions {
   dns: string;
 }
 
-export interface DDNSChallengerArgv extends ChallengerOptions {
+export interface DDNSChallengerArgs extends ChallengerOptions {
   dns?: string;
 }
 
@@ -37,12 +37,12 @@ export class DDNSChallenger {
   protected bucket: Bucket;
   protected ready: Promise<void>;
 
-  static create(options: DDNSChallengerArgv) {
-    return new DDNSChallenger(options);
+  static create(args: DDNSChallengerArgs) {
+    return new DDNSChallenger(args);
   }
 
-  constructor(opts?: DDNSChallengerArgv) {
-    opts = Object.assign({}, DEFAULT_OPTIONS, opts);
+  constructor(args?: DDNSChallengerArgs) {
+    const opts = Object.assign({}, DEFAULT_OPTIONS, args);
 
     this.opts = <DDNSChallengerOptions>opts;
     let store: any = opts.store || "memory";
@@ -75,7 +75,7 @@ export class DDNSChallenger {
         .replace(/\+/g, "-")
         .replace(/\//g, "_")
         .replace(/=+$/g, "");
-      const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengePrefix, opts.test);
+      const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
 
       if (!keyAuthorization) {
         console.warn("SANITY FAIL: missing keyAuthorization", domain, keyAuthorization);
@@ -133,7 +133,7 @@ export class DDNSChallenger {
         return;
       }
 
-      const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengePrefix, opts.test);
+      const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
 
       await Executor.execute(opts.dns, "delete", challengeDomain, {
         ...creds,
@@ -153,7 +153,7 @@ export class DDNSChallenger {
 
   async loopback(args: { [name: string]: any }, domain: string, done?: CallbackFn): Promise<string[]> {
     const opts = Object.assign({}, this.opts, args);
-    const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengePrefix, opts.test);
+    const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
     try {
       return <any>PromiseA.fromCallback(cb => dns.resolveTxt(challengeDomain, cb)).asCallback(done);
     } catch (e) {
