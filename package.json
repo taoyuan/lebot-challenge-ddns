@@ -1,6 +1,6 @@
 {
   "name": "lebot-challenge-ddns",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "lebot-challenge-ddns",
   "license": "MIT",
   "repository": "",
@@ -31,7 +31,7 @@
     "@types/async-retry": "^1.2.1",
     "@types/bluebird": "^3.5.25",
     "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.5",
+    "@types/mocha": "^5.2.6",
     "@types/node": "^11.9.3",
     "@types/randomstring": "^1.1.6",
     "chai": "^4.2.0",
