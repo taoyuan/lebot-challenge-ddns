@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS = {
 
 type CallbackFn = (err: any, data?: any) => void;
 
-interface ChallengerOptions {
+interface ChallengeOptions {
   acmeChallengeDns?: string;
   ttl?: number;
   user?: string;
@@ -23,29 +23,29 @@ interface ChallengerOptions {
   logger?
 }
 
-interface DDNSChallengerOptions extends ChallengerOptions {
+interface DDNSChallengeOptions extends ChallengeOptions {
   dns: string;
 }
 
-interface DDNSChallengerArgs extends ChallengerOptions {
+interface DDNSChallengeArgs extends ChallengeOptions {
   dns?: string;
 }
 
 export = class DDNSChallenge {
 
-  protected opts: DDNSChallengerOptions;
+  protected opts: DDNSChallengeOptions;
   protected store: Store;
   protected bucket: Bucket;
   protected ready: Promise<void>;
 
-  static create(args: DDNSChallengerArgs) {
+  static create(args: DDNSChallengeArgs) {
     return new DDNSChallenge(args);
   }
 
-  constructor(args?: DDNSChallengerArgs) {
+  constructor(args?: DDNSChallengeArgs) {
     const opts = Object.assign({}, DEFAULT_OPTIONS, args);
 
-    this.opts = <DDNSChallengerOptions>opts;
+    this.opts = <DDNSChallengeOptions>opts;
     let store: any = opts.store || "memory";
     if (store instanceof Store) {
       this.store = store;
