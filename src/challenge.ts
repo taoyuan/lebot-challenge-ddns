@@ -103,7 +103,7 @@ export = class DDNSChallenge {
         console.log("dig TXT +noall +answer @ns1.redirect-www.org '" + challengeDomain + "' # " + challenge);
       }
 
-      await retry(async () => assert(keyAuthDigest == await this.loopback(opts, domain)), { maxTimeout: 5000 });
+      await retry(async () => assert((await this.loopback(opts, domain)).includes(keyAuthDigest)), { maxTimeout: 5000 });
 
       done && done(null, keyAuthDigest);
       return keyAuthDigest;
@@ -156,7 +156,10 @@ export = class DDNSChallenge {
     const opts = Object.assign({}, this.opts, args);
     const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
     try {
-      return <any>PromiseA.fromCallback(cb => dns.resolveTxt(challengeDomain, cb)).asCallback(done);
+      const records = <string[][]> await PromiseA.fromCallback(cb => dns.resolveTxt(challengeDomain, cb));
+      const answer = records.map(record => record.join(""));
+      done && done(null, answer);
+      return answer;
     } catch (e) {
       console.error(e);
       done && done(e);
@@ -172,7 +175,7 @@ export = class DDNSChallenge {
 
     try {
       const keyAuthDigest = await this.set(opts, domain, challenge, keyAuthorization);
-      const records = await retry(() => this.loopback(opts, domain), { retries: 5 });
+      const records = await this.loopback(opts, domain);
       await this.remove(opts, domain, challenge);
       checkChallenge(records, keyAuthDigest);
     } catch (e) {
