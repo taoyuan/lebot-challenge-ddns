@@ -23,15 +23,15 @@ interface ChallengerOptions {
   logger?
 }
 
-export interface DDNSChallengerOptions extends ChallengerOptions {
+interface DDNSChallengerOptions extends ChallengerOptions {
   dns: string;
 }
 
-export interface DDNSChallengerArgs extends ChallengerOptions {
+interface DDNSChallengerArgs extends ChallengerOptions {
   dns?: string;
 }
 
-export class DDNSChallenger {
+export = class DDNSChallenge {
 
   protected opts: DDNSChallengerOptions;
   protected store: Store;
@@ -39,7 +39,7 @@ export class DDNSChallenger {
   protected ready: Promise<void>;
 
   static create(args: DDNSChallengerArgs) {
-    return new DDNSChallenger(args);
+    return new DDNSChallenge(args);
   }
 
   constructor(args?: DDNSChallengerArgs) {

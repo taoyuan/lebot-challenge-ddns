@@ -1,1 +1,1 @@
-export * from "./challenger";
+export = require("./challenge");
