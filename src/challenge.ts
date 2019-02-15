@@ -125,7 +125,6 @@ export = class DDNSChallenge {
       done && done(null, keyAuthDigest);
       return keyAuthDigest;
     } catch (e) {
-      console.error(e);
       done && done(e);
       throw e;
     }
@@ -163,7 +162,6 @@ export = class DDNSChallenge {
 
       await await this.bucket.del(domain);
     } catch (e) {
-      console.error(e);
       done && done(e);
       throw e;
     }
@@ -207,7 +205,6 @@ export = class DDNSChallenge {
       }
       // checkChallenge(records, keyAuthDigest);
     } catch (e) {
-      console.error(e);
       done && done(e);
       throw e;
     }
