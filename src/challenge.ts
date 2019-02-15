@@ -90,6 +90,10 @@ export = class DDNSChallenge {
 
       await this.bucket.set(domain, creds);
 
+      if (opts.debug) {
+        console.log('[set] Update TXT ' + challengeDomain + ':', keyAuthDigest);
+      }
+
       await Executor.execute(opts.dns, "update", challengeDomain, {
         ...creds,
         type: "TXT",
@@ -99,18 +103,26 @@ export = class DDNSChallenge {
       });
 
       if (opts.debug) {
-        console.log("Test DNS Record:");
-        console.log("dig TXT +noall +answer @ns1.redirect-www.org '" + challengeDomain + "' # " + challenge);
+        console.log("[set] Test DNS Record:");
+        console.log("[set] dig TXT +noall +answer '" + challengeDomain + "' # " + challenge);
       }
 
-      await retry(async () => assert((await this.loopback(opts, domain)).includes(keyAuthDigest)), { maxTimeout: 5000 });
+      if (opts.debug) {
+        console.log('[set] Validating TXT', challengeDomain);
+      }
+
+      await retry(async () => assert((await this.loopback(opts, domain)).includes(keyAuthDigest)), {maxTimeout: 5000});
+
+      if (opts.debug) {
+        console.log('[set] Validated TXT', challengeDomain, 'Successful');
+      }
 
       done && done(null, keyAuthDigest);
       return keyAuthDigest;
     } catch (e) {
       console.error(e);
       done && done(e);
-      return PromiseA.reject(e);
+      throw e;
     }
   }
 
@@ -148,7 +160,7 @@ export = class DDNSChallenge {
     } catch (e) {
       console.error(e);
       done && done(e);
-      return PromiseA.reject(e);
+      throw e;
     }
   }
 
@@ -156,14 +168,19 @@ export = class DDNSChallenge {
     const opts = Object.assign({}, this.opts, args);
     const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
     try {
-      const records = <string[][]> await PromiseA.fromCallback(cb => dns.resolveTxt(challengeDomain, cb));
-      const answer = records.map(record => record.join(""));
+      if (opts.debug) {
+        console.log('Resolving TXT ' + challengeDomain);
+      }
+      const records = <string[][]>await PromiseA.fromCallback(cb => dns.resolveTxt(challengeDomain, cb));
+      const answer = records.map(record => record && record.join(""));
+      if (opts.debug) {
+        console.log('Resolved TXT ' + challengeDomain + ':', answer);
+      }
       done && done(null, answer);
       return answer;
     } catch (e) {
-      console.error(e);
       done && done(e);
-      return PromiseA.reject(e);
+      throw e;
     }
   }
 
@@ -171,17 +188,17 @@ export = class DDNSChallenge {
     args = args || {};
     args.test = args.test || this.opts.test || "_test";
 
-    const opts = { ...DEFAULT_OPTIONS, ...args };
+    const opts: any = { ...DEFAULT_OPTIONS, ...args };
 
     try {
       const keyAuthDigest = await this.set(opts, domain, challenge, keyAuthorization);
-      const records = await this.loopback(opts, domain);
+      const records = await retry(async () => await this.loopback(opts, domain), {maxTimeout: 5000});
       await this.remove(opts, domain, challenge);
       checkChallenge(records, keyAuthDigest);
     } catch (e) {
       console.error(e);
       done && done(e);
-      return PromiseA.reject(e);
+      throw e;
     }
   }
 }
@@ -199,7 +216,7 @@ function prefixify(name?: string) {
 }
 
 function checkChallenge(records: string[], expected: string) {
-  if (!records.some(k => k == expected)) {
+  if (!records.includes(expected)) {
     throw new Error("TXT record '" + records + "' doesn't match '" + expected + "'");
   }
 }

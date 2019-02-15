@@ -15,10 +15,11 @@ const challenge = "xxx-acme-challenge-xxx";
 const keyAuthorization = rs.generate();
 
 describe("DDNSChallenger", function() {
-  this.timeout(30000);
+  this.timeout(60000);
 
   it("should work with ddns", async () => {
-    const challenger = new DDNSChallenge({
+    const challenger = DDNSChallenge.create({
+      debug: true,
       test: "_test_01"
     });
     await challenger.test({ ...creds }, domain, challenge, keyAuthorization);
