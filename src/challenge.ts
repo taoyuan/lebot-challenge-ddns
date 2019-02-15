@@ -111,7 +111,12 @@ export = class DDNSChallenge {
         console.log('[set] Validating TXT', challengeDomain);
       }
 
-      await retry(async () => assert((await this.loopback(opts, domain)).includes(keyAuthDigest)), {maxTimeout: 5000});
+
+      try {
+        await retry(async () => assert((await this.loopback(opts, domain)).includes(keyAuthDigest)), {maxTimeout: 5000});
+      } catch (e) {
+        throw new Error('Can not resolve TXT ' + challengeDomain +' or validating failed');
+      }
 
       if (opts.debug) {
         console.log('[set] Validated TXT', challengeDomain, 'Successful');
@@ -192,9 +197,15 @@ export = class DDNSChallenge {
 
     try {
       const keyAuthDigest = await this.set(opts, domain, challenge, keyAuthorization);
-      const records = await retry(async () => await this.loopback(opts, domain), {maxTimeout: 5000});
-      await this.remove(opts, domain, challenge);
-      checkChallenge(records, keyAuthDigest);
+      // const records = await retry(async () => await this.loopback(opts, domain), {maxTimeout: 5000});
+      if (opts.test) {
+        console.log('Cleaning up...');
+      }
+      await retry(async () => await this.remove(opts, domain, challenge), {maxTimeout: 5000});
+      if (opts.test) {
+        console.log('Cleaned up');
+      }
+      // checkChallenge(records, keyAuthDigest);
     } catch (e) {
       console.error(e);
       done && done(e);
@@ -215,8 +226,8 @@ function prefixify(name?: string) {
   }
 }
 
-function checkChallenge(records: string[], expected: string) {
-  if (!records.includes(expected)) {
-    throw new Error("TXT record '" + records + "' doesn't match '" + expected + "'");
-  }
-}
+// function checkChallenge(records: string[], expected: string) {
+//   if (!records.includes(expected)) {
+//     throw new Error("TXT record '" + records + "' doesn't match '" + expected + "'");
+//   }
+// }
