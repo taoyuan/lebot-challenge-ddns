@@ -31,6 +31,15 @@ interface DDNSChallengeArgs extends ChallengeOptions {
   dns?: string;
 }
 
+interface Cache {
+  creds: {
+    user?: string;
+    pass?: string;
+    token?: string;
+  },
+  keyAuthDigest: string;
+}
+
 export = class DDNSChallenge {
 
   protected opts: DDNSChallengeOptions;
@@ -85,21 +94,26 @@ export = class DDNSChallenge {
       const creds = {
         user: opts.user,
         pass: opts.pass,
-        token: opts.token
+        token: opts.token,
       };
 
-      await this.bucket.set(domain, creds);
+      const cache: Cache = {
+        creds,
+        keyAuthDigest
+      };
+
+      await this.bucket.set(domain, cache);
 
       if (opts.debug) {
         console.log('[set] Update TXT ' + challengeDomain + ':', keyAuthDigest);
       }
 
-      await Executor.execute(opts.dns, "update", challengeDomain, {
+      await Executor.execute(opts.dns, "create", challengeDomain, {
         ...creds,
         type: "TXT",
         name: challengeDomain,
         ttl: opts.ttl || 120,
-        content: keyAuthDigest
+        content: keyAuthDigest,
       });
 
       if (opts.debug) {
@@ -117,6 +131,8 @@ export = class DDNSChallenge {
       } catch (e) {
         throw new Error('Can not resolve TXT ' + challengeDomain +' or validating failed');
       }
+
+      await PromiseA.delay(2000);
 
       if (opts.debug) {
         console.log('[set] Validated TXT', challengeDomain, 'Successful');
@@ -143,8 +159,8 @@ export = class DDNSChallenge {
 
       assert(opts.dns, "`dns` provider is required.");
 
-      const creds = await this.bucket.get(domain);
-      if (!creds) {
+      const cache: Cache = await this.bucket.get(domain);
+      if (!cache) {
         console.warn("[warning] could not remove '" + domain + "': already removed");
         done && done(null);
         return;
@@ -153,15 +169,22 @@ export = class DDNSChallenge {
       const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
 
       if (opts.debug) {
-        console.log('Removing TXT ' + challengeDomain);
+        console.log('Removing TXT ' + challengeDomain + ' ' + cache.keyAuthDigest);
       }
-      await Executor.execute(opts.dns, "delete", challengeDomain, {
-        ...creds,
+      const deleted = await Executor.execute(opts.dns, "delete", challengeDomain, {
+        ...cache.creds,
         name: challengeDomain,
-        type: "TXT"
+        type: "TXT",
+        content: cache.keyAuthDigest
       });
+
       if (opts.debug) {
-        console.log('Removed TXT ' + challengeDomain);
+        if (deleted) {
+          console.log('Removed TXT ' + challengeDomain + ' ' + cache.keyAuthDigest);
+        } else {
+          console.log('TXT ' + challengeDomain + ' ' + cache.keyAuthDigest + ' not found');
+        }
+
       }
 
       done && done(null);

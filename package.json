@@ -26,7 +26,7 @@
     "async-retry": "^1.2.3",
     "bluebird": "^3.5.3",
     "kvs": "^1.0.2",
-    "namex": "^0.2.4"
+    "namex": "^0.2.6"
   },
   "devDependencies": {
     "@types/async-retry": "^1.2.1",
