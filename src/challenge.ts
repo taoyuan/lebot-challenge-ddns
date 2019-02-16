@@ -152,11 +152,17 @@ export = class DDNSChallenge {
 
       const challengeDomain = buildChallengeDomain(domain, opts.acmeChallengeDns, opts.test);
 
+      if (opts.debug) {
+        console.log('Removing TXT ' + challengeDomain);
+      }
       await Executor.execute(opts.dns, "delete", challengeDomain, {
         ...creds,
         name: challengeDomain,
         type: "TXT"
       });
+      if (opts.debug) {
+        console.log('Removed TXT ' + challengeDomain);
+      }
 
       done && done(null);
 
