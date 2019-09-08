@@ -1,6 +1,8 @@
 lebot-challenge-ddns
 ----
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/taoyuan/lebot-challenge-ddns.svg)](https://greenkeeper.io/)
+
 > A dns-based strategy for `node-letsencrypt` for setting based on [namex](github.com/taoyuan.namex), retrieving,
 and clearing ACME DNS-01 challenges issued by the ACME server
 >
